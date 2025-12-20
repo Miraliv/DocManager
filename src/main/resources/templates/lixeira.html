@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Lixeira - DocManager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function confirmarExclusaoPermanente() {
+            return confirm("ATENÇÃO: Esta ação é irreversível. O arquivo será destruído. Deseja continuar?");
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+
+<nav class="bg-white shadow-sm border-b border-gray-200 fixed w-full z-30 top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-indigo-600 tracking-tight">DocManager</span>
+                </div>
+                <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
+                    <a th:href="@{/dashboard}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                        Dashboard
+                    </a>
+                    <a th:href="@{/admin/departamentos}" sec:authorize="hasRole('ADMIN')" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                        Unidades
+                    </a>
+                    <a th:href="@{/admin/usuarios}" sec:authorize="hasRole('ADMIN')" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                        Usuários
+                    </a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a th:href="@{/lixeira}" class="group text-red-600 transition-colors relative cursor-default" title="Você está na Lixeira">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </a>
+                <div class="h-6 w-px bg-gray-200"></div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="h-16"></div>
+
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center mb-6">
+            <span class="bg-red-100 text-red-600 p-3 rounded-xl mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </span>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Arquivos Deletados</h1>
+            <p class="text-gray-500 text-sm">Gerencie a restauração ou remoção definitiva.</p>
+        </div>
+    </div>
+
+    <div class="bg-orange-50 border-l-4 border-orange-400 p-4 mb-8 rounded-r shadow-sm">
+        <div class="flex">
+            <div class="flex-shrink-0 text-orange-400">
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-orange-800 font-medium">
+                    Política de Retenção: Itens são removidos permanentemente após 30 dias.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${sucesso}" class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-r shadow-sm" th:text="${sucesso}"></div>
+
+    <div class="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Título</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Departamento</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Excluído em</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+            <tr th:each="doc : ${documentos}" class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4">
+                    <span class="text-sm font-medium text-gray-400 italic line-through" th:text="${doc.titulo}"></span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500" th:text="${doc.department.nome}"></td>
+                <td class="px-6 py-4 text-sm text-gray-500" th:text="${#temporals.format(doc.deletionDate, 'dd/MM/yyyy HH:mm')}"></td>
+                <td class="px-6 py-4 text-right text-sm font-medium space-x-3">
+                    <form th:action="@{/lixeira/restaurar/{id}(id=${doc.id})}" method="post" class="inline">
+                        <button type="submit" class="text-indigo-600 hover:text-indigo-800 font-semibold hover:underline">Restaurar</button>
+                    </form>
+                    <form th:action="@{/lixeira/excluir/{id}(id=${doc.id})}" method="post" class="inline"
+                          sec:authorize="hasRole('ADMIN')" onsubmit="return confirmarExclusaoPermanente()">
+                        <button type="submit" class="text-red-500 hover:text-red-700 font-semibold hover:underline">Expurgar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(documentos)}">
+                <td colspan="4" class="px-6 py-10 text-center text-gray-500 italic">A lixeira está vazia.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div th:replace="~{fragments/session-modal :: modal}"></div>
+<div th:replace="~{fragments/session-script :: timer}"></div>
+</body>
+</html>

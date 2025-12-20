@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Propriedades - DocManager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+<div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border-t-8 border-indigo-600">
+  <h2 class="text-2xl font-bold text-gray-900 mb-6">Editar Título do Arquivo</h2>
+
+  <form th:action="@{/documentos/editar}" method="post" class="space-y-4">
+    <input type="hidden" name="id" th:value="${documento.id}">
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Novo Nome do Documento</label>
+      <input type="text" name="titulo" th:value="${documento.titulo}" required
+             class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+    </div>
+
+    <div class="bg-gray-50 p-3 rounded text-xs text-gray-500">
+      <p><strong>Arquivo original:</strong> <span th:text="${documento.nomeArquivoOriginal}"></span></p>
+      <p><strong>Departamento:</strong> <span th:text="${documento.department.nome}"></span></p>
+    </div>
+
+    <div class="pt-4 flex items-center justify-between">
+      <a th:href="@{/dashboard}" class="text-gray-500 hover:underline text-sm">Cancelar</a>
+      <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700">Salvar Alterações</button>
+    </div>
+  </form>
+</div>
+
+<div th:replace="~{fragments/session-modal :: modal}"></div>
+<div th:replace="~{fragments/session-script :: timer}"></div>
+</body>
+</html>

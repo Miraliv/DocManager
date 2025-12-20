@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Gestão - ' + ${department.nome}">Departamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+
+<nav class="bg-white shadow-sm border-b border-gray-200 fixed w-full z-30 top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-indigo-600 tracking-tight">DocManager <span class="text-gray-400 font-light ml-1">| Admin</span></span>
+                </div>
+                <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
+                    <a th:href="@{/dashboard}" class="border-transparent text-indigo-600 hover:text-indigo-800 inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium transition-colors">
+                        &larr; Voltar ao Painel
+                    </a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a th:href="@{/lixeira}" class="group text-gray-400 hover:text-red-600 transition-colors relative" title="Lixeira">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </a>
+                <div class="h-6 w-px bg-gray-200"></div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="h-16"></div>
+
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+            <span class="text-gray-400 mr-2 font-light">Unidade:</span>
+            <span th:text="${department.nome}"></span>
+        </h1>
+        <a th:if="${department.nome == 'Diretoria'}" th:href="@{/upload}" class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-indigo-700 shadow-sm transition-colors flex items-center">
+            <span class="mr-2 text-lg">+</span> Novo Arquivo
+        </a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-10">
+        <a th:each="entry : ${contagemPorTipo}"
+           th:href="@{/documentos/categoria/{tipo}(tipo=${entry.key.name()}, departmentId=${department.id})}"
+           class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-indigo-300 transition-all text-center group">
+            <h3 class="font-bold text-indigo-600 group-hover:text-indigo-800" th:text="${entry.key.displayName}"></h3>
+            <p class="text-gray-500 text-sm mt-1" th:text="${entry.value} + ' docs'"></p>
+        </a>
+    </div>
+
+    <div class="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+            <h2 class="text-lg font-bold text-gray-800">Arquivos Recentes na Unidade</h2>
+        </div>
+        <table class="min-w-full divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-200">
+            <tr th:each="doc : ${recentes}" class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4">
+                    <a th:href="@{/documentos/view/{id}(id=${doc.id})}" target="_blank" class="text-indigo-600 font-medium hover:underline flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" /></svg>
+                        <span th:text="${doc.titulo}"></span>
+                    </a>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500" th:text="${doc.tipoDocumento.displayName}"></td>
+                <td class="px-6 py-4 text-sm text-gray-500" th:text="${#temporals.format(doc.dataUpload, 'dd/MM/yyyy')}"></td>
+                <td class="px-6 py-4 text-right space-x-3">
+                    <a th:href="@{/documentos/download/{id}(id=${doc.id})}" title="Baixar" class="text-gray-400 hover:text-indigo-600 text-lg">📥</a>
+
+                    <a th:href="@{/documentos/editar/{id}(id=${doc.id})}" th:if="${department.nome == 'Diretoria'}" title="Editar" class="text-gray-400 hover:text-indigo-600 text-lg">✏️</a>
+                    <form th:action="@{/documentos/deletar/{id}(id=${doc.id})}" method="post" class="inline" th:if="${department.nome == 'Diretoria'}">
+                        <button type="submit" class="text-gray-400 hover:text-red-600 text-lg" title="Mover para Lixeira">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(recentes)}">
+                <td colspan="4" class="px-6 py-8 text-center text-gray-500 italic">Nenhum arquivo recente encontrado nesta unidade.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div th:replace="~{fragments/session-modal :: modal}"></div>
+<div th:replace="~{fragments/session-script :: timer}"></div>
+</body>
+</html>

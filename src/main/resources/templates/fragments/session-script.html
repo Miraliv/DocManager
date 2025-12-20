@@ -1,0 +1,54 @@
+<script th:fragment="timer" th:inline="javascript" xmlns:th="http://www.w3.org/1999/xhtml">
+    (function() {
+
+        // --- A CORREÇÃO DEFINITIVA ---
+        // Em vez de usar @environment, lemos a variável 'sessionTimeoutInSeconds'
+        // que o nosso GlobalModelAttributes colocou no Model.
+        const SESSION_TIMEOUT_SECONDS = /*[[${sessionTimeoutInSeconds}]]*/ 1800;
+        // --- FIM DA CORREÇÃO ---
+
+        // Damos 10 segundos de "folga".
+        let gracePeriodSeconds = 10;
+        let finalTimeoutSeconds = SESSION_TIMEOUT_SECONDS - gracePeriodSeconds;
+
+        // Apenas uma segurança para não dar timeout negativo se a sessão for < 10s
+        if (finalTimeoutSeconds <= 0) {
+            finalTimeoutSeconds = 1;
+        }
+
+        // Converte o tempo corrigido para milissegundos
+        let timeoutInMillis = finalTimeoutSeconds * 1000;
+        let timeoutId;
+
+        const modal = document.getElementById('session-expired-modal');
+
+        function showSessionModal() {
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function startTimer() {
+            // Descomente para debugar no console do navegador
+            // console.log('Servidor expira em: ' + SESSION_TIMEOUT_SECONDS + 's');
+            // console.log('Modal do navegador aparecerá em: ' + finalTimeoutSeconds + 's');
+            timeoutId = window.setTimeout(showSessionModal, timeoutInMillis);
+        }
+
+        function resetTimer() {
+            // console.log('Timer resetado');
+            window.clearTimeout(timeoutId);
+            startTimer();
+        }
+
+        // Inicia o timer quando a página carrega
+        startTimer();
+
+        // Reinicia o timer em qualquer atividade do usuário
+        document.addEventListener('mousemove', resetTimer);
+        document.addEventListener('mousedown', resetTimer);
+        document.addEventListener('keypress', resetTimer);
+        document.addEventListener('touchmove', resetTimer);
+
+    })();
+</script>

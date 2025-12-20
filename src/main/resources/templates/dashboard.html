@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Documentos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<nav class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <span class="font-bold text-xl text-indigo-600">Gestão de Documentos</span>
+            </div>
+            <div class="flex items-center space-x-4">
+
+                <a th:href="@{/dashboard}" class="bg-indigo-100 text-indigo-700 px-3 py-2 rounded-md text-sm font-medium">
+                    Dashboard
+                </a>
+
+                <a th:href="@{/admin/usuarios}"
+                   sec:authorize="hasRole('PREFEITO')"
+                   class="text-gray-500 hover:bg-gray-100 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                    Gestão de Usuários
+                </a>
+
+                <form th:action="@{/logout}" method="post" class="flex items-center">
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white shadow rounded-lg p-5">
+            <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Documentos Visíveis</h4>
+            <p class="text-3xl font-semibold text-gray-900" th:text="${totalDocumentos}">0</p>
+        </div>
+        <div class="bg-white shadow rounded-lg p-5">
+            <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Seu Cargo</h4>
+            <p class="text-3xl font-semibold text-gray-900" th:text="${cargo}">Secretário</p>
+        </div>
+        <div class="bg-white shadow rounded-lg p-5">
+            <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Sua Secretaria</h4>
+            <p class="text-xl font-semibold text-gray-900" th:text="${nomeSecretaria}">Saúde</p>
+        </div>
+    </div>
+    <div class="px-4 py-6 sm:px-0">
+
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-semibold text-gray-900">Documentos</h1>
+            <a th:href="@{/upload}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm">
+                + Novo Documento
+            </a>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow mb-6">
+            <form th:action="@{/dashboard}" method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="titulo" class="block text-sm font-medium text-gray-700">Buscar por Título</label>
+                    <input type="text" name="titulo" id="titulo" th:value="${param.titulo}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="tipo" class="block text-sm font-medium text-gray-700">Categoria (Tipo)</label>
+                    <select name="tipo" id="tipo" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white">
+                        <option value="">Todas as categorias</option>
+                        <option th:each="tipoOpt : ${tiposDocumento}"
+                                th:value="${tipoOpt}"
+                                th:text="${tipoOpt.displayName}"
+                                th:selected="${param.tipo == tipoOpt.name()}"></option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm">Buscar</button>
+                    <a th:href="@{/dashboard}" class="ml-2 text-gray-600 hover:text-gray-800 py-2 px-4">Limpar</a>
+                </div>
+            </form>
+        </div>
+        <div th:if="${sucesso}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline" th:text="${sucesso}"></span>
+        </div>
+        <div th:if="${erro}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline" th:text="${erro}"></span>
+        </div>
+
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                    <th sec:authorize="hasRole('PREFEITO')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Secretaria</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Upload</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:if="${#lists.isEmpty(documentos)}">
+                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">Nenhum documento encontrado.</td>
+                </tr>
+                <tr th:each="doc : ${documentos}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${doc.titulo}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" th:text="${doc.tipoDocumento.displayName}"></td>
+                    <td sec:authorize="hasRole('PREFEITO')" class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" th:text="${doc.secretaria.nome}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" th:text="${#temporals.format(doc.dataUpload, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                        <a th:href="@{/documentos/view/{id}(id=${doc.id})}" target="_blank"
+                           class="text-indigo-600 hover:text-indigo-900 inline-flex items-center" title="Visualizar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
+                        </a>
+                        <a th:href="@{/documentos/download/{id}(id=${doc.id})}"
+                           class="text-gray-500 hover:text-gray-800 inline-flex items-center" title="Baixar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 9.293a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

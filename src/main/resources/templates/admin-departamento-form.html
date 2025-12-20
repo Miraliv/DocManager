@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Configurar Unidade - DocManager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+<div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border-t-8 border-indigo-600">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6"
+        th:text="${department.id == null ? 'Nova Unidade' : 'Editar Unidade'}"></h2>
+
+    <form th:action="@{/admin/departamentos/salvar}" th:object="${department}" method="post" class="space-y-4">
+        <input type="hidden" th:field="*{id}">
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Nome do Departamento</label>
+            <input type="text" th:field="*{nome}" required placeholder="Ex: Logística, Comercial..."
+                   class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+
+        <div class="pt-4 flex items-center justify-between">
+            <a th:href="@{/admin/departamentos}" class="text-gray-500 hover:underline text-sm">Cancelar</a>
+            <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700">
+                Salvar Unidade
+            </button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

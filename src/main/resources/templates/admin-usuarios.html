@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Usuários - DocManager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+
+<nav class="bg-white shadow-sm border-b border-gray-200 fixed w-full z-30 top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="font-bold text-xl text-indigo-600 tracking-tight">DocManager</span>
+                </div>
+                <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
+                    <a th:href="@{/dashboard}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                        Dashboard
+                    </a>
+                    <a th:href="@{/admin/departamentos}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                        Unidades
+                    </a>
+                    <a th:href="@{/admin/usuarios}" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        Usuários
+                    </a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a th:href="@{/lixeira}" class="group text-gray-400 hover:text-red-600 transition-colors relative" title="Lixeira">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </a>
+                <div class="h-6 w-px bg-gray-200"></div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="h-16"></div>
+
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Gerentes de Unidade</h1>
+            <p class="text-sm text-gray-500 mt-1">Controle de acesso e convites para gestores.</p>
+        </div>
+        <a th:href="@{/admin/usuarios/novo}" class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-indigo-700 shadow-sm transition-colors">
+            + Convidar Gerente
+        </a>
+    </div>
+
+    <div th:if="${sucesso}" class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-r shadow-sm" th:text="${sucesso}"></div>
+    <div th:if="${erro}" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r shadow-sm" th:text="${erro}"></div>
+
+    <div class="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Usuário</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Departamento</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+            <tr th:each="u : ${usuarios}" class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg">
+                            <span th:text="${#strings.substring(u.nome, 0, 1)}">U</span>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-bold text-gray-900" th:text="${u.nome}"></div>
+                            <div class="text-sm text-gray-500" th:text="${u.email}"></div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-700" th:text="${u.department.nome}"></td>
+                <td class="px-6 py-4">
+                            <span th:if="${u.enabled}" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                Ativo
+                            </span>
+                    <span th:unless="${u.enabled}" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                Pendente
+                            </span>
+                </td>
+                <td class="px-6 py-4 text-right text-sm font-medium space-x-3">
+                    <form th:action="@{/admin/usuarios/status/{id}(id=${u.id})}" method="post" class="inline">
+                        <button type="submit"
+                                th:class="${u.enabled} ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'"
+                                th:text="${u.enabled ? 'Desativar' : 'Ativar'}"></button>
+                    </form>
+
+                    <form th:if="${!u.enabled}" th:action="@{/admin/usuarios/reenviar/{id}(id=${u.id})}" method="post" class="inline">
+                        <button type="submit" class="text-indigo-600 hover:text-indigo-900">Reenviar</button>
+                    </form>
+
+                    <form th:if="${!u.enabled}" th:action="@{/admin/usuarios/revogar/{id}(id=${u.id})}" method="post" class="inline">
+                        <button type="submit" class="text-red-500 hover:text-red-700" onclick="return confirm('Tem certeza que deseja revogar este convite?')">Revogar</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div th:replace="~{fragments/session-modal :: modal}"></div>
+<div th:replace="~{fragments/session-script :: timer}"></div>
+</body>
+</html>
