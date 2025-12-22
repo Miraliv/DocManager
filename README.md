@@ -66,7 +66,7 @@ O projeto está em evolução constante. As próximas atualizações incluirão:
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/SEU-USUARIO/docmanager.git](https://github.com/SEU-USUARIO/docmanager.git)
+    git clone [https://github.com/Miraliv/docmanager.git](https://github.com/Miraliv/docmanager.git)
     cd docmanager
     ```
 
