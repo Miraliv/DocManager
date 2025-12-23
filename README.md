@@ -66,8 +66,8 @@ O projeto está em evolução constante. As próximas atualizações incluirão:
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/Miraliv/docmanager.git](https://github.com/Miraliv/docmanager.git)
-    cd docmanager
+    git clone https://github.com/Miraliv/DocManager.git
+    cd DocManager
     ```
 
 2.  **Configure o Banco de Dados:**
